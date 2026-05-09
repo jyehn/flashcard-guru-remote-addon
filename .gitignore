@@ -8,8 +8,7 @@ build/
 dist/
 *.ankiaddon
 
-# Vendored dependencies are populated by scripts/vendor_deps.sh; track only the
-# vendored source, not pip caches.
-flashcard_guru_remote/vendor/*.dist-info/
-flashcard_guru_remote/vendor/*.egg-info/
-flashcard_guru_remote/vendor/__pycache__/
+# Vendored runtime deps are populated by scripts/vendor_deps.sh and bundled
+# into .ankiaddon at build time. Don't track the third-party source in git;
+# regenerate locally before each release build.
+flashcard_guru_remote/vendor/

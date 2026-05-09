@@ -11,10 +11,18 @@ A free Anki desktop add-on that pairs with the [Flashcard Guru](https://flashcar
 
 ## Install
 
+**End users:**
+
 1. In Anki Desktop, open `Tools → Add-ons → Get Add-ons…`
-2. Paste the AnkiWeb code: *(coming soon)*
+2. Paste the AnkiWeb code: *(coming soon — see [flashcard-guru.flashify.app/anki-remote](https://flashcard-guru.flashify.app/anki-remote))*
 3. Restart Anki
 4. The first time the add-on starts, macOS asks **"Allow incoming connections?"** — click **Allow**. If you missed it, go to `System Settings → Network → Firewall → Options` and add Python.
+
+**Sideload (testing pre-release builds):**
+
+Run `./scripts/build_ankiaddon.sh` — this produces
+`dist/flashcard-guru-remote-<version>.ankiaddon`. Drag that file onto
+Anki, or `open -a Anki dist/flashcard-guru-remote-<version>.ankiaddon`.
 
 ## Use
 
@@ -28,7 +36,7 @@ A free Anki desktop add-on that pairs with the [Flashcard Guru](https://flashcar
 # Install dev dependencies (only for running tests)
 pip install -e ".[test]"
 
-# Run tests
+# Run tests (68 passing)
 pytest
 ```
 
@@ -37,6 +45,23 @@ Vendored runtime deps live under `flashcard_guru_remote/vendor/` and are populat
 ```bash
 ./scripts/vendor_deps.sh
 ```
+
+To produce a release `.ankiaddon`:
+
+```bash
+./scripts/build_ankiaddon.sh
+```
+
+The output zip flattens the `flashcard_guru_remote/` package contents to
+the zip root (Anki expects `__init__.py` at the top level of the addon
+folder), so dev imports `from .server import …` keep working unchanged.
+
+## Release process
+
+See [`ANKIWEB.md`](ANKIWEB.md) for the listing copy + submission
+checklist, [`CHANGELOG.md`](CHANGELOG.md) for the version history, and
+[`docs/release/anki-remote-qa-checklist.md`](../../docs/release/anki-remote-qa-checklist.md)
+for the manual QA passes.
 
 ## License
 
