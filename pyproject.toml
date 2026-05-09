@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flashcard-guru-remote-dev"
+version = "0.1.0"
+description = "Dev environment for the Flashcard Guru Remote Anki addon"
+requires-python = ">=3.9"
+# These are dev-time only; the installed addon ships vendored copies under
+# flashcard_guru_remote/vendor/ so users do not need pip.
+dependencies = [
+  "websockets>=12.0",
+  "qrcode[pil]>=7.4",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=7.4",
+  "pytest-asyncio>=0.21",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+asyncio_mode = "auto"

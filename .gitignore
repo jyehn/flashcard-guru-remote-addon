@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.ankiaddon
+
+# Vendored dependencies are populated by scripts/vendor_deps.sh; track only the
+# vendored source, not pip caches.
+flashcard_guru_remote/vendor/*.dist-info/
+flashcard_guru_remote/vendor/*.egg-info/
+flashcard_guru_remote/vendor/__pycache__/
