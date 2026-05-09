@@ -217,6 +217,39 @@ async def test_broadcast_event_reaches_client(running_server):
 
 
 @pytest.mark.asyncio
+async def test_on_device_paired_callback_fires(running_server):
+    server, _, port = running_server
+    paired_devices: list = []
+    server.on_device_paired = paired_devices.append
+
+    async with connect(f"ws://127.0.0.1:{port}") as ws:
+        resp = await _hello(ws)
+        assert resp["result"]["ok"] is True
+
+    # Give the server's event loop a tick to deliver the callback (it runs
+    # synchronously inside _authenticate, so by the time hello returns the
+    # callback has already fired).
+    await asyncio.sleep(0.05)
+
+    assert len(paired_devices) == 1
+    assert paired_devices[0].token == "test-token"
+    assert paired_devices[0].device_name == "Pytest iPhone"
+
+
+@pytest.mark.asyncio
+async def test_on_device_paired_not_called_on_auth_failure(running_server):
+    server, _, port = running_server
+    paired_devices: list = []
+    server.on_device_paired = paired_devices.append
+
+    async with connect(f"ws://127.0.0.1:{port}") as ws:
+        await _hello(ws, token="wrong-token")
+
+    await asyncio.sleep(0.05)
+    assert paired_devices == []
+
+
+@pytest.mark.asyncio
 async def test_invalid_token_three_strikes_bans(running_server):
     _, _, port = running_server
 

@@ -17,10 +17,10 @@ import asyncio
 import ipaddress
 import logging
 import threading
-from typing import Any
+from typing import Any, Callable
 
 from .auth import FailureTracker, constant_time_equals
-from .config import RemoteConfig
+from .config import PairedDevice, RemoteConfig
 from .dispatcher import DispatchError, Dispatcher
 from .protocol import (
     Event,
@@ -56,6 +56,18 @@ class RemoteServer:
         self._failure_tracker = FailureTracker()
         self._lock = threading.Lock()
         self._bind_error: BaseException | None = None
+        # Optional callback fired (from the asyncio loop thread) when a phone
+        # successfully completes the hello handshake. The pairing dialog uses
+        # this to flip its UI from "waiting" to "connected".
+        self.on_device_paired: Callable[[PairedDevice], None] | None = None
+
+    @property
+    def config(self) -> RemoteConfig:
+        return self._config
+
+    @property
+    def host_name(self) -> str:
+        return self._host_name
 
     @property
     def port(self) -> int:
@@ -222,6 +234,13 @@ class RemoteServer:
             ).to_json()
         )
         log.info("paired device connected: %s (%s)", device.device_name, remote)
+
+        if self.on_device_paired is not None:
+            try:
+                self.on_device_paired(device)
+            except Exception:  # noqa: BLE001
+                log.exception("on_device_paired callback failed")
+
         return device
 
     def _handle_request(self, raw: Any) -> Response:
