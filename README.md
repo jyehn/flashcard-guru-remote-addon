@@ -14,7 +14,7 @@ A free Anki desktop add-on that pairs with the [Flashcard Guru](https://flashcar
 **End users:**
 
 1. In Anki Desktop, open `Tools → Add-ons → Get Add-ons…`
-2. Paste the AnkiWeb code: *(coming soon — see [flashcard-guru.flashify.app/anki-remote](https://flashcard-guru.flashify.app/anki-remote))*
+2. Paste the AnkiWeb code: **`1196082853`** ([listing](https://ankiweb.net/shared/info/1196082853))
 3. Restart Anki
 4. The first time the add-on starts, macOS asks **"Allow incoming connections?"** — click **Allow**. If you missed it, go to `System Settings → Network → Firewall → Options` and add Python.
 

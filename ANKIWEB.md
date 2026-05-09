@@ -4,6 +4,9 @@ Source of truth for the public AnkiWeb add-on page. Update here, then
 paste into https://ankiweb.net/shared/upload (or the existing entry's
 "Edit" page) before each release.
 
+**Live listing**: <https://ankiweb.net/shared/info/1196082853>
+**AnkiWeb code (for `Tools → Add-ons → Get Add-ons…`)**: `1196082853`
+
 ---
 
 ## Title

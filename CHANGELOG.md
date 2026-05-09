@@ -2,6 +2,8 @@
 
 ## 0.1.0 (2026-05-09)
 
+Published to AnkiWeb as code [`1196082853`](https://ankiweb.net/shared/info/1196082853).
+
 Initial public release. Pairs with the Flashcard Guru iOS app via QR code
 to drive Anki Desktop reviews from an iPhone.
 
