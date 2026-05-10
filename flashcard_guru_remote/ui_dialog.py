@@ -25,7 +25,6 @@ from aqt.qt import (  # type: ignore
     QPainter,
     QPixmap,
     QPushButton,
-    QRectF,
     Qt,
     QTimer,
     QVBoxLayout,
@@ -187,27 +186,31 @@ class ConnectPhoneDialog(QDialog):
             )
             return
 
-        # Paint the QR matrix directly with QPainter. Bypassing PIL (Anki 25.x
-        # doesn't bundle it) and SVG (Qt's QSvgRenderer mis-renders qrcode's
-        # output on some platforms — modules collapsed into one black block).
+        # Render the QR by drawing each "on" module as a 1×1 fillRect into a
+        # tiny pixmap (one logical pixel per module + quiet zone), then
+        # nearest-neighbour-scale that pixmap up to the display size. This
+        # avoids both PIL (Anki 25.x ships no Pillow) and the float-pixel /
+        # pen-state quirks that bit earlier 0.1.x releases — fillRect ignores
+        # the pen entirely, and integer 1×1 drawing has no rounding to fight.
         n = len(matrix)
         total = n + 2 * border
-        module_px = QR_DISPLAY_PX / total
-
-        pixmap = QPixmap(QR_DISPLAY_PX, QR_DISPLAY_PX)
-        pixmap.fill(Qt.GlobalColor.white)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QBrush(QColor("black")))
+        small = QPixmap(total, total)
+        small.fill(Qt.GlobalColor.white)
+        painter = QPainter(small)
+        black = QBrush(QColor("black"))
         for r in range(n):
+            row = matrix[r]
             for c in range(n):
-                if matrix[r][c]:
-                    x = (c + border) * module_px
-                    y = (r + border) * module_px
-                    # +0.5 oversize hides hair-thin gaps caused by float rounding
-                    painter.drawRect(QRectF(x, y, module_px + 0.5, module_px + 0.5))
+                if row[c]:
+                    painter.fillRect(c + border, r + border, 1, 1, black)
         painter.end()
+
+        pixmap = small.scaled(
+            QR_DISPLAY_PX,
+            QR_DISPLAY_PX,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.FastTransformation,  # nearest neighbour — crisp module edges
+        )
         self._qr_label.setPixmap(pixmap)
         self._status_label.setText(
             "Open Flashcard Guru on your iPhone, then\n"

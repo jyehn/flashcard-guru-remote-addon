@@ -1,5 +1,22 @@
 # Flashcard Guru Remote — Changelog
 
+## 0.1.3 (2026-05-10)
+
+Bug fix (third time, last time): 0.1.2's `painter.drawRect` rendering
+collapsed the QR into a small black square in the upper-left of the
+canvas on Qt 6.9 / macOS 15. Suspected cause: `setPen(Qt.PenStyle.
+NoPen)` not actually disabling the pen on this Qt build, so each
+module's "outline" overlapped its neighbours' fill into a blob.
+
+Switched to a render path with no float math and no pen state at
+all: paint a tiny `n × n` (one logical pixel per QR module + quiet
+zone) pixmap with `painter.fillRect(int, int, 1, 1, brush)`, then
+scale it up to the display size with `Qt.TransformationMode.Fast
+Transformation` (nearest neighbour — module edges stay crisp).
+
+`fillRect` ignores the pen entirely and 1×1 integer rects can't
+round-collapse, so this should be the last QR-rendering fix needed.
+
 ## 0.1.2 (2026-05-10)
 
 Bug fix: 0.1.1's SVG-based QR rendering produced a corrupted image
