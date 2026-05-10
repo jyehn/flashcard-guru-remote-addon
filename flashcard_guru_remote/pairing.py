@@ -153,16 +153,36 @@ class QRDependencyMissing(RuntimeError):
     """Raised when the optional `qrcode` library isn't available."""
 
 
-def render_qr_png(payload: PairingPayload, *, box_size: int = 10, border: int = 2) -> bytes:
-    """Render a payload as a PNG-encoded QR code, returning raw PNG bytes."""
+def render_qr_svg(payload: PairingPayload, *, box_size: int = 10, border: int = 2) -> bytes:
+    """Render a payload as an SVG-encoded QR code, returning raw SVG bytes.
+
+    SVG was chosen over PNG so the add-on stays Pillow-free — Anki 25.x's
+    bundled Python no longer ships PIL, and the previous `qrcode.make(...)`
+    PNG path (which goes through `qrcode.image.pil`) crashes with
+    `ModuleNotFoundError: No module named 'PIL'`. SVG is rendered into a
+    QPixmap on the Qt side via QSvgRenderer.
+    """
     try:
         import qrcode  # type: ignore
+        import qrcode.image.svg  # type: ignore
     except ImportError as exc:  # pragma: no cover — depends on env
         raise QRDependencyMissing(
             "the 'qrcode' Python library is required to render the pairing QR"
         ) from exc
 
-    img = qrcode.make(payload.to_json(), box_size=box_size, border=border)
+    img = qrcode.make(
+        payload.to_json(),
+        image_factory=qrcode.image.svg.SvgImage,
+        box_size=box_size,
+        border=border,
+    )
     buf = BytesIO()
-    img.save(buf, format="PNG")
+    img.save(buf)
     return buf.getvalue()
+
+
+# Backward-compat alias so external callers / older tests don't break — the
+# add-on itself now uses render_qr_svg exclusively.
+def render_qr_png(payload: PairingPayload, **kwargs) -> bytes:  # pragma: no cover
+    """Deprecated: returns SVG bytes (function kept for backward-compat)."""
+    return render_qr_svg(payload, **kwargs)

@@ -5,7 +5,7 @@
   "min_point_version": 55,
   "max_point_version": 0,
   "branch_index": 0,
-  "human_version": "0.1.0",
+  "human_version": "0.1.1",
   "homepage": "https://flashcard-guru.flashify.app/anki-remote",
   "description": "Turn your iPhone into a free wireless remote for Anki. Pair in 10 seconds via QR code, then control reviews from anywhere on your Wi-Fi. Companion to the Flashcard Guru iOS app."
 }

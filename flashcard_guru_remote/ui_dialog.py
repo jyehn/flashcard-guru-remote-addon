@@ -14,12 +14,14 @@ from typing import TYPE_CHECKING
 
 from aqt import mw  # type: ignore
 from aqt.qt import (  # type: ignore
+    QByteArray,
     QComboBox,
     QDialog,
     QHBoxLayout,
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QPainter,
     QPixmap,
     QPushButton,
     Qt,
@@ -27,12 +29,19 @@ from aqt.qt import (  # type: ignore
     QVBoxLayout,
 )
 
+# QSvgRenderer lives in PyQt6.QtSvg; aqt.qt re-exports it on recent Anki
+# versions but not all, so we hedge.
+try:
+    from aqt.qt import QSvgRenderer  # type: ignore
+except ImportError:  # pragma: no cover — depends on aqt build
+    from PyQt6.QtSvg import QSvgRenderer  # type: ignore
+
 from .config import PairedDevice, RemoteConfig
 from .pairing import (
     QRDependencyMissing,
     list_lan_interfaces,
     make_pairing_payload,
-    render_qr_png,
+    render_qr_svg,
 )
 
 if TYPE_CHECKING:
@@ -173,7 +182,7 @@ class ConnectPhoneDialog(QDialog):
         self._refresh_paired_list()
 
         try:
-            png = render_qr_png(payload)
+            svg_bytes = render_qr_svg(payload)
         except QRDependencyMissing as exc:
             log.error("QR render failed: %s", exc)
             self._qr_label.clear()
@@ -183,16 +192,16 @@ class ConnectPhoneDialog(QDialog):
             )
             return
 
-        pixmap = QPixmap()
-        pixmap.loadFromData(png)
-        self._qr_label.setPixmap(
-            pixmap.scaled(
-                QR_DISPLAY_PX,
-                QR_DISPLAY_PX,
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation,
-            )
-        )
+        # Render SVG → QPixmap via QSvgRenderer. We use SVG (not PNG) because
+        # newer Anki Pythons don't bundle Pillow, which the qrcode library's
+        # PIL image factory requires.
+        renderer = QSvgRenderer(QByteArray(svg_bytes))
+        pixmap = QPixmap(QR_DISPLAY_PX, QR_DISPLAY_PX)
+        pixmap.fill(Qt.GlobalColor.white)
+        painter = QPainter(pixmap)
+        renderer.render(painter)
+        painter.end()
+        self._qr_label.setPixmap(pixmap)
         self._status_label.setText(
             "Open Flashcard Guru on your iPhone, then\n"
             "Settings → Anki Remote → Pair with Mac. Scan this code."
