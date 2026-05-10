@@ -153,19 +153,49 @@ class QRDependencyMissing(RuntimeError):
     """Raised when the optional `qrcode` library isn't available."""
 
 
-def render_qr_svg(payload: PairingPayload, *, box_size: int = 10, border: int = 2) -> bytes:
-    """Render a payload as an SVG-encoded QR code, returning raw SVG bytes.
+def compute_qr_matrix(payload: PairingPayload, *, border: int = 2) -> tuple[list[list[bool]], int]:
+    """Compute the QR module matrix for a payload, no rendering library required.
 
-    SVG was chosen over PNG so the add-on stays Pillow-free — Anki 25.x's
-    bundled Python no longer ships PIL, and the previous `qrcode.make(...)`
-    PNG path (which goes through `qrcode.image.pil`) crashes with
-    `ModuleNotFoundError: No module named 'PIL'`. SVG is rendered into a
-    QPixmap on the Qt side via QSvgRenderer.
+    Returns ``(matrix, border)`` where ``matrix[r][c]`` is True iff the
+    module at row r / column c is on. The matrix dimensions are
+    ``modules_count`` × ``modules_count`` — *without* the quiet-zone border;
+    callers add ``border`` modules of whitespace around it.
+
+    We render the resulting matrix with QPainter on the Qt side rather than
+    going through PIL/SVG. That dodges two real problems:
+    (a) Anki 25.x's bundled Python no longer ships Pillow, so the qrcode
+        library's PIL-backed PNG factory crashes with ModuleNotFoundError.
+    (b) qrcode's SVG factory output renders incorrectly through Qt's
+        QSvgRenderer — modules collapse into a single block in some versions.
     """
     try:
         import qrcode  # type: ignore
-        import qrcode.image.svg  # type: ignore
     except ImportError as exc:  # pragma: no cover — depends on env
+        raise QRDependencyMissing(
+            "the 'qrcode' Python library is required to compute the pairing QR"
+        ) from exc
+
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=1,
+        border=border,
+    )
+    qr.add_data(payload.to_json())
+    qr.make(fit=True)
+    return qr.modules, qr.border
+
+
+# ---------------------------------------------------------------------------
+# Backward-compat shims — kept so older tests / external callers don't break.
+# The add-on itself uses compute_qr_matrix.
+# ---------------------------------------------------------------------------
+
+def render_qr_svg(payload: PairingPayload, *, box_size: int = 10, border: int = 2) -> bytes:
+    """Render an SVG QR (only used by tests / external callers)."""
+    try:
+        import qrcode  # type: ignore
+        import qrcode.image.svg  # type: ignore
+    except ImportError as exc:  # pragma: no cover
         raise QRDependencyMissing(
             "the 'qrcode' Python library is required to render the pairing QR"
         ) from exc
@@ -181,8 +211,6 @@ def render_qr_svg(payload: PairingPayload, *, box_size: int = 10, border: int = 
     return buf.getvalue()
 
 
-# Backward-compat alias so external callers / older tests don't break — the
-# add-on itself now uses render_qr_svg exclusively.
 def render_qr_png(payload: PairingPayload, **kwargs) -> bytes:  # pragma: no cover
-    """Deprecated: returns SVG bytes (function kept for backward-compat)."""
+    """Deprecated alias — returns SVG bytes."""
     return render_qr_svg(payload, **kwargs)

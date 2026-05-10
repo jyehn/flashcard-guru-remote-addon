@@ -1,5 +1,18 @@
 # Flashcard Guru Remote — Changelog
 
+## 0.1.2 (2026-05-10)
+
+Bug fix: 0.1.1's SVG-based QR rendering produced a corrupted image
+(modules collapsed into a single black block) on Qt 6.9 / macOS 15
+because `QSvgRenderer` mis-handles qrcode's SVG output in some Qt
+builds.
+
+Switched to direct `QPainter` matrix rendering — bypasses both Pillow
+*and* SVG entirely. We compute the QR module matrix in pure Python
+via `qrcode.QRCode().make()`, then paint each "on" module as a black
+rect into a `QPixmap`. Visually identical to the original PIL output,
+zero indirect-rendering dependency.
+
 ## 0.1.1 (2026-05-10)
 
 Bug fix: opening **Tools → Connect Phone…** crashed on Anki 25.x

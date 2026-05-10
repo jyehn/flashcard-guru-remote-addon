@@ -14,7 +14,8 @@ from typing import TYPE_CHECKING
 
 from aqt import mw  # type: ignore
 from aqt.qt import (  # type: ignore
-    QByteArray,
+    QBrush,
+    QColor,
     QComboBox,
     QDialog,
     QHBoxLayout,
@@ -24,24 +25,18 @@ from aqt.qt import (  # type: ignore
     QPainter,
     QPixmap,
     QPushButton,
+    QRectF,
     Qt,
     QTimer,
     QVBoxLayout,
 )
 
-# QSvgRenderer lives in PyQt6.QtSvg; aqt.qt re-exports it on recent Anki
-# versions but not all, so we hedge.
-try:
-    from aqt.qt import QSvgRenderer  # type: ignore
-except ImportError:  # pragma: no cover — depends on aqt build
-    from PyQt6.QtSvg import QSvgRenderer  # type: ignore
-
 from .config import PairedDevice, RemoteConfig
 from .pairing import (
     QRDependencyMissing,
+    compute_qr_matrix,
     list_lan_interfaces,
     make_pairing_payload,
-    render_qr_svg,
 )
 
 if TYPE_CHECKING:
@@ -182,7 +177,7 @@ class ConnectPhoneDialog(QDialog):
         self._refresh_paired_list()
 
         try:
-            svg_bytes = render_qr_svg(payload)
+            matrix, border = compute_qr_matrix(payload)
         except QRDependencyMissing as exc:
             log.error("QR render failed: %s", exc)
             self._qr_label.clear()
@@ -192,14 +187,26 @@ class ConnectPhoneDialog(QDialog):
             )
             return
 
-        # Render SVG → QPixmap via QSvgRenderer. We use SVG (not PNG) because
-        # newer Anki Pythons don't bundle Pillow, which the qrcode library's
-        # PIL image factory requires.
-        renderer = QSvgRenderer(QByteArray(svg_bytes))
+        # Paint the QR matrix directly with QPainter. Bypassing PIL (Anki 25.x
+        # doesn't bundle it) and SVG (Qt's QSvgRenderer mis-renders qrcode's
+        # output on some platforms — modules collapsed into one black block).
+        n = len(matrix)
+        total = n + 2 * border
+        module_px = QR_DISPLAY_PX / total
+
         pixmap = QPixmap(QR_DISPLAY_PX, QR_DISPLAY_PX)
         pixmap.fill(Qt.GlobalColor.white)
         painter = QPainter(pixmap)
-        renderer.render(painter)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QBrush(QColor("black")))
+        for r in range(n):
+            for c in range(n):
+                if matrix[r][c]:
+                    x = (c + border) * module_px
+                    y = (r + border) * module_px
+                    # +0.5 oversize hides hair-thin gaps caused by float rounding
+                    painter.drawRect(QRectF(x, y, module_px + 0.5, module_px + 0.5))
         painter.end()
         self._qr_label.setPixmap(pixmap)
         self._status_label.setText(
