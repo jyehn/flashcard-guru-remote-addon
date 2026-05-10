@@ -86,7 +86,7 @@ go to *System Settings → Network → Firewall → Options* and add Python.
 
 ### Source code & support
 
-* Add-on source: <https://github.com/rainverse/flashcard-guru-remote>
+* Add-on source: <https://github.com/jyehn/flashcard-guru-remote-addon>
 * iOS app + support: <https://flashcard-guru.flashify.app>
 * Bug reports: <https://flashcard-guru.flashify.app/support>
 

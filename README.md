@@ -2,6 +2,10 @@
 
 A free Anki desktop add-on that pairs with the [Flashcard Guru](https://flashcard-guru.flashify.app) iOS app to turn your iPhone into a wireless review remote.
 
+**Source**: <https://github.com/jyehn/flashcard-guru-remote-addon>
+**AnkiWeb**: <https://ankiweb.net/shared/info/1196082853>
+**License**: LGPL-3.0-or-later
+
 - 10-second QR pairing — no IP / port juggling
 - Supports cheap controllers (8BitDo Zero 2, micro) when bridged through your phone — even ones AnkiMobile rejects
 - LAN-only, no cloud, no telemetry
