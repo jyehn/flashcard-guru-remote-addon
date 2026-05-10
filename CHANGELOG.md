@@ -1,5 +1,21 @@
 # Flashcard Guru Remote — Changelog
 
+## 0.1.5 (2026-05-10)
+
+Bug fix: pressing Show Answer / rating buttons / replay / undo on the
+iPhone crashed Anki 25.x with `Reviewer object has no attribute
+showAnswer` etc. Anki 25.x renamed the Reviewer methods from
+camelCase → snake_case (PEP-8 housekeeping):
+
+  showAnswer  → show_answer
+  _answerCard → _answer_card
+  replayAudio → replay_audio
+  mw.onUndo   → mw.undo / mw.col.undo
+
+The bridge now tries each name in order of recency and falls back to
+the older camelCase form for 2.1.x users. Wrapped in a
+`_invoke_first` helper so the dispatcher code stays clean.
+
 ## 0.1.4 (2026-05-10)
 
 Fourth attempt at fixing the QR render on Qt 6.9 / macOS 15. 0.1.3's

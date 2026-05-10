@@ -15,6 +15,22 @@ T = TypeVar("T")
 CALL_TIMEOUT_S = 5.0
 
 
+def _invoke_first(obj: Any, *names: str, args: tuple = ()) -> Any:
+    """Call the first method on `obj` whose name matches one in `names`.
+
+    Lets us support both snake_case (Anki 25.x+) and camelCase (≤2.1.x)
+    surfaces of the same method without branching the caller. Raises
+    AttributeError if none of the candidates exist as callables.
+    """
+    for name in names:
+        method = getattr(obj, name, None)
+        if callable(method):
+            return method(*args)
+    raise AttributeError(
+        f"{type(obj).__name__} has none of {names!r} (Anki API changed?)"
+    )
+
+
 class MainThreadAnkiBridge:
     """Bridges WebSocket worker thread → Anki's Qt main thread."""
 
@@ -30,25 +46,44 @@ class MainThreadAnkiBridge:
 
     def show_answer(self) -> dict[str, Any]:
         def fn() -> dict[str, Any]:
-            self._mw.reviewer.showAnswer()
+            # Anki 25.x renamed Reviewer.showAnswer → show_answer
+            # (PEP-8-ification). 2.1.x still exposes the camelCase form.
+            _invoke_first(self._mw.reviewer, "show_answer", "showAnswer")
             return self._snapshot()
 
         return self._call(fn)
 
     def answer_card(self, ease: int) -> dict[str, Any]:
         def fn() -> dict[str, Any]:
-            self._mw.reviewer._answerCard(ease)  # noqa: SLF001 — Anki internal but stable
+            _invoke_first(self._mw.reviewer, "_answer_card", "_answerCard", args=(ease,))
             return self._snapshot()
 
         return self._call(fn)
 
     def replay_audio(self) -> None:
-        self._call(self._mw.reviewer.replayAudio)
+        def fn() -> None:
+            _invoke_first(self._mw.reviewer, "replay_audio", "replayAudio")
+
+        self._call(fn)
 
     def undo(self) -> dict[str, Any]:
         def fn() -> dict[str, Any]:
-            self._mw.onUndo()
-            return self._snapshot()
+            # Undo path moved around between Anki versions. Try the most
+            # specific (collection-level) first, then UI-level fallbacks.
+            for target, names in (
+                (self._mw, ("undo", "on_undo", "onUndo")),
+                (self._mw.col, ("undo",)),
+            ):
+                if target is None:
+                    continue
+                try:
+                    _invoke_first(target, *names)
+                    return self._snapshot()
+                except AttributeError:
+                    continue
+            raise AttributeError(
+                "no undo method found on mw or mw.col — Anki API changed?"
+            )
 
         return self._call(fn)
 
