@@ -46,33 +46,40 @@ class MainThreadAnkiBridge:
 
     def show_answer(self) -> dict[str, Any]:
         def fn() -> dict[str, Any]:
-            # Anki 25.x renamed Reviewer.showAnswer → show_answer
-            # (PEP-8-ification). 2.1.x still exposes the camelCase form.
-            _invoke_first(self._mw.reviewer, "show_answer", "showAnswer")
+            # Anki's Reviewer exposes _showAnswer (single underscore prefix
+            # despite being the public-by-convention API; snake_case fallback
+            # is defensive in case a future version rename happens).
+            # Verified against ankitects/anki release branch reviewer.py.
+            _invoke_first(self._mw.reviewer, "_showAnswer", "show_answer")
             return self._snapshot()
 
         return self._call(fn)
 
     def answer_card(self, ease: int) -> dict[str, Any]:
         def fn() -> dict[str, Any]:
-            _invoke_first(self._mw.reviewer, "_answer_card", "_answerCard", args=(ease,))
+            _invoke_first(
+                self._mw.reviewer,
+                "_answerCard", "_answer_card",
+                args=(ease,),
+            )
             return self._snapshot()
 
         return self._call(fn)
 
     def replay_audio(self) -> None:
         def fn() -> None:
-            _invoke_first(self._mw.reviewer, "replay_audio", "replayAudio")
+            _invoke_first(self._mw.reviewer, "replayAudio", "replay_audio")
 
         self._call(fn)
 
     def undo(self) -> dict[str, Any]:
         def fn() -> dict[str, Any]:
-            # Undo path moved around between Anki versions. Try the most
-            # specific (collection-level) first, then UI-level fallbacks.
+            # mw.undo() is the real method (the Reviewer's "u" shortcut goes
+            # straight to it). mw.col.undo() is a final fallback if a future
+            # version moves the entry point.
             for target, names in (
                 (self._mw, ("undo", "on_undo", "onUndo")),
-                (self._mw.col, ("undo",)),
+                (getattr(self._mw, "col", None), ("undo",)),
             ):
                 if target is None:
                     continue

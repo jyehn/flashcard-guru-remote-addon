@@ -1,5 +1,19 @@
 # Flashcard Guru Remote — Changelog
 
+## 0.1.6 (2026-05-10)
+
+Bug fix: 0.1.5 guessed wrong on the Reviewer method names — `show_answer`
+doesn't exist either. Verified against ankitects/anki release branch
+source: the actual API is `_showAnswer` (single underscore prefix,
+camelCase), and `_answerCard`. The `_invoke_first` lookup now leads
+with the real names. `mw.undo()` is the real undo entry point, not
+`mw.onUndo()`.
+
+Added `tests/test_anki_bridge.py` with parametrised tests against
+fake reviewers in both `_showAnswer` (real Anki) and `show_answer`
+(hypothetical future) spellings, so any future drift gets caught
+before a release.
+
 ## 0.1.5 (2026-05-10)
 
 Bug fix: pressing Show Answer / rating buttons / replay / undo on the
