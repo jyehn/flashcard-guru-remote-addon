@@ -14,20 +14,20 @@ from typing import TYPE_CHECKING
 
 from aqt import mw  # type: ignore
 from aqt.qt import (  # type: ignore
-    QBrush,
     QColor,
     QComboBox,
     QDialog,
     QHBoxLayout,
+    QImage,
     QLabel,
     QListWidget,
     QListWidgetItem,
-    QPainter,
     QPixmap,
     QPushButton,
     Qt,
     QTimer,
     QVBoxLayout,
+    qRgb,
 )
 
 from .config import PairedDevice, RemoteConfig
@@ -186,30 +186,43 @@ class ConnectPhoneDialog(QDialog):
             )
             return
 
-        # Render the QR by drawing each "on" module as a 1×1 fillRect into a
-        # tiny pixmap (one logical pixel per module + quiet zone), then
-        # nearest-neighbour-scale that pixmap up to the display size. This
-        # avoids both PIL (Anki 25.x ships no Pillow) and the float-pixel /
-        # pen-state quirks that bit earlier 0.1.x releases — fillRect ignores
-        # the pen entirely, and integer 1×1 drawing has no rounding to fight.
+        # Build the QR via QImage.setPixel — the lowest-possible-level Qt
+        # API for a raster bitmap. No painter, no brush, no pen, no float
+        # rounding. Earlier 0.1.x releases all crashed on different layers
+        # of Qt's painting pipeline; this one writes pixel bytes directly.
         n = len(matrix)
         total = n + 2 * border
-        small = QPixmap(total, total)
-        small.fill(Qt.GlobalColor.white)
-        painter = QPainter(small)
-        black = QBrush(QColor("black"))
+        img = QImage(total, total, QImage.Format.Format_RGB32)
+        img.fill(qRgb(255, 255, 255))  # white background
+        black = qRgb(0, 0, 0)
+        on_count = 0
         for r in range(n):
             row = matrix[r]
             for c in range(n):
                 if row[c]:
-                    painter.fillRect(c + border, r + border, 1, 1, black)
-        painter.end()
+                    img.setPixel(c + border, r + border, black)
+                    on_count += 1
 
-        pixmap = small.scaled(
+        # Diagnostic dump so we can verify the small image is correct
+        # without round-tripping through the full Qt scale path.
+        try:
+            img.save("/tmp/flashcard-guru-qr-debug.png")
+        except Exception:
+            pass
+        log.info(
+            "QR debug: matrix=%dx%d, border=%d, total=%d, on_modules=%d",
+            n, n, border, total, on_count,
+        )
+
+        pixmap = QPixmap.fromImage(img).scaled(
             QR_DISPLAY_PX,
             QR_DISPLAY_PX,
             Qt.AspectRatioMode.KeepAspectRatio,
-            Qt.TransformationMode.FastTransformation,  # nearest neighbour — crisp module edges
+            Qt.TransformationMode.FastTransformation,
+        )
+        log.info(
+            "QR debug: small=%dx%d, scaled=%dx%d",
+            img.width(), img.height(), pixmap.width(), pixmap.height(),
         )
         self._qr_label.setPixmap(pixmap)
         self._status_label.setText(

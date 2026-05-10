@@ -1,5 +1,20 @@
 # Flashcard Guru Remote — Changelog
 
+## 0.1.4 (2026-05-10)
+
+Fourth attempt at fixing the QR render on Qt 6.9 / macOS 15. 0.1.3's
+`QPainter.fillRect` path still produced a small black blob instead of
+the expected QR pattern. Switched the implementation to use
+`QImage.setPixel` — the lowest-level pixel-buffer API in Qt — to write
+each "on" module directly. No painter, no brush, no pen, no float
+rounding. Then converted to QPixmap and nearest-neighbour-scaled to
+display size.
+
+Also drops a debug PNG of the raw 45×45 matrix to
+`/tmp/flashcard-guru-qr-debug.png` and logs matrix + pixmap dimensions
+to Anki's log, so if 0.1.4 still misrenders we can inspect ground
+truth directly.
+
 ## 0.1.3 (2026-05-10)
 
 Bug fix (third time, last time): 0.1.2's `painter.drawRect` rendering
