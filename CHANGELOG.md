@@ -1,5 +1,12 @@
 # Flashcard Guru Remote — Changelog
 
+## 0.1.7 (2026-11-17)
+
+Listing and copy only, no behavior change. App Store links now use the app
+id (the old slug URL returned 404). The app is now called Guru, and the
+links point to guruowl.com. The in-app hint names the current iOS menu,
+Settings → Desk Remote.
+
 ## 0.1.6 (2026-05-10)
 
 Bug fix: 0.1.5 guessed wrong on the Reviewer method names — `show_answer`
