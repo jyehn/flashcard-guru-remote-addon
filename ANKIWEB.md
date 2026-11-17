@@ -20,7 +20,7 @@ Flashcard Guru Remote — iPhone wireless remote
 ## Tagline
 
 Free wireless remote for Anki Desktop, paired in 10 seconds with the
-Flashcard Guru iOS app — works with cheap 8BitDo controllers AnkiMobile
+Guru iOS app — works with cheap 8BitDo controllers AnkiMobile
 won't pair with.
 
 ---
@@ -35,13 +35,13 @@ for Anki Desktop. Pair in 10 seconds via QR code, then drive
 *Show Answer / Again / Hard / Good / Easy / Undo / Replay* from your couch,
 treadmill, or wherever you're studying.
 
-This add-on is the **companion to the [Flashcard Guru iOS app][app]**,
+This add-on is the **companion to [Guru: Flashcard Study Coach][app]**, our iOS app,
 which is free in the App Store. Both pieces are required.
 
 ### Why another Anki remote?
 
 * **Your phone is already a remote.** No $40-60 hardware purchase.
-* **The Flashcard Guru iOS app supports cheap 8BitDo controllers in
+* **The Guru iOS app supports cheap 8BitDo controllers in
   Keyboard Mode** — including the popular Zero 2 and Micro that
   AnkiMobile won't pair with. Plug your 8BitDo into your iPhone, and
   every button press becomes an Anki review action over Wi-Fi.
@@ -53,10 +53,10 @@ which is free in the App Store. Both pieces are required.
 
 1. Install this add-on (Anki → Tools → Add-ons → Get Add-ons → paste
    this page's code), then **restart Anki**.
-2. Install [Flashcard Guru][app] on your iPhone.
+2. Install [Guru][app] on your iPhone.
 3. In Anki: **Tools → Connect Phone (Flashcard Guru Remote)…** — a QR
    code appears.
-4. In Flashcard Guru: **Settings → Anki Remote → Pair with Mac** — scan
+4. In Guru: **Settings → Desk Remote → Pair with Mac** — scan
    the QR code.
 5. Done. Open any deck on your Mac and your iPhone takes over.
 
@@ -72,7 +72,7 @@ go to *System Settings → Network → Firewall → Options* and add Python.
   don't have the gui_hooks API we rely on.
 * macOS — officially supported. Windows works but isn't actively QA'd.
 * iPhone with iOS 16 or later, on the same Wi-Fi as the Mac.
-* The free [Flashcard Guru iOS app][app].
+* The free [Guru iOS app][app].
 
 ### Privacy
 
@@ -87,10 +87,10 @@ go to *System Settings → Network → Firewall → Options* and add Python.
 ### Source code & support
 
 * Add-on source: <https://github.com/jyehn/flashcard-guru-remote-addon>
-* iOS app + support: <https://flashcard-guru.flashify.app>
-* Bug reports: <https://flashcard-guru.flashify.app/support>
+* iOS app + support: <https://guruowl.com>
+* Bug reports: <https://guruowl.com/app/support/>
 
-[app]: https://apps.apple.com/app/flashcard-guru
+[app]: https://apps.apple.com/app/id6757980593
 ```
 
 ---

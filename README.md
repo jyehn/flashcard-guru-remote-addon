@@ -1,6 +1,6 @@
 # Flashcard Guru Remote
 
-A free Anki desktop add-on that pairs with the [Flashcard Guru](https://flashcard-guru.flashify.app) iOS app to turn your iPhone into a wireless review remote.
+A free Anki desktop add-on that pairs with the [Guru](https://apps.apple.com/app/id6757980593) iOS app to turn your iPhone into a wireless review remote.
 
 **Source**: <https://github.com/jyehn/flashcard-guru-remote-addon>
 **AnkiWeb**: <https://ankiweb.net/shared/info/1196082853>
@@ -11,7 +11,7 @@ A free Anki desktop add-on that pairs with the [Flashcard Guru](https://flashcar
 - LAN-only, no cloud, no telemetry
 - Open source (LGPL-3.0)
 
-> **Companion app required.** This add-on does nothing on its own — install the [Flashcard Guru](https://flashcard-guru.flashify.app) iOS app to use it.
+> **Companion app required.** This add-on does nothing on its own — install the [Guru](https://apps.apple.com/app/id6757980593) iOS app to use it.
 
 ## Install
 
@@ -31,7 +31,7 @@ Anki, or `open -a Anki dist/flashcard-guru-remote-<version>.ankiaddon`.
 ## Use
 
 1. In Anki: `Tools → Connect Phone (Flashcard Guru Remote)…` — a QR code appears
-2. In the iOS app: `Settings → Anki Remote → Pair with Mac` — scan the QR code
+2. In the iOS app: `Settings → Desk Remote → Pair with Mac` — scan the QR code
 3. Done — open any deck on your Mac and your iPhone takes over
 
 ## Development
@@ -69,7 +69,7 @@ for the manual QA passes.
 
 ## License
 
-LGPL-3.0-or-later. See `LICENSE`. The companion iOS app (Flashcard Guru) is closed-source; only this add-on is open source.
+LGPL-3.0-or-later. See `LICENSE`. The companion iOS app (Guru) is closed-source; only this add-on is open source.
 
 ## Requirements
 

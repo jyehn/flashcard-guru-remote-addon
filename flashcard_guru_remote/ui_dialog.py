@@ -226,8 +226,8 @@ class ConnectPhoneDialog(QDialog):
         )
         self._qr_label.setPixmap(pixmap)
         self._status_label.setText(
-            "Open Flashcard Guru on your iPhone, then\n"
-            "Settings → Anki Remote → Pair with Mac. Scan this code."
+            "Open Guru on your iPhone, then\n"
+            "Settings → Desk Remote → Pair with Mac. Scan this code."
         )
 
     def _regenerate(self) -> None:
