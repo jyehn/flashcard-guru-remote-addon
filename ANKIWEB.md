@@ -86,9 +86,11 @@ go to *System Settings → Network → Firewall → Options* and add Python.
 
 ### Source code & support
 
+* Setup guide & screenshots: <https://guruowl.com/app/anki-remote/>
+* Online Anki remote tester (8BitDo & page turners): <https://guruowl.com/anki-remote-tester>
+* Guru iOS app: <https://guruowl.com/app/>
+* Bug reports & support: <https://guruowl.com/app/support/>
 * Add-on source: <https://github.com/jyehn/flashcard-guru-remote-addon>
-* iOS app + support: <https://guruowl.com>
-* Bug reports: <https://guruowl.com/app/support/>
 
 [app]: https://apps.apple.com/app/id6757980593
 ```
