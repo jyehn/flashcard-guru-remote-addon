@@ -1,17 +1,20 @@
 # Flashcard Guru Remote
 
-A free Anki desktop add-on that pairs with the [Guru](https://apps.apple.com/app/id6757980593) iOS app to turn your iPhone into a wireless review remote.
+A free Anki desktop add-on that pairs with the [Guru](https://guruowl.com/app/) iOS app ([App Store](https://apps.apple.com/app/id6757980593)) to turn your iPhone into a wireless review remote.
 
+**Setup guide**: <https://guruowl.com/app/anki-remote/>
+**Online remote tester** (8BitDo & Bluetooth page turners): <https://guruowl.com/anki-remote-tester>
+**Support & bug reports**: <https://guruowl.com/app/support/>
 **Source**: <https://github.com/jyehn/flashcard-guru-remote-addon>
 **AnkiWeb**: <https://ankiweb.net/shared/info/1196082853>
 **License**: LGPL-3.0-or-later
 
 - 10-second QR pairing — no IP / port juggling
-- Supports cheap controllers (8BitDo Zero 2, micro) when bridged through your phone — even ones AnkiMobile rejects
+- Supports cheap controllers (8BitDo Zero 2, micro) when bridged through your phone — even ones AnkiMobile rejects (test your controller in the browser with the [Anki Remote Tester](https://guruowl.com/anki-remote-tester))
 - LAN-only, no cloud, no telemetry
 - Open source (LGPL-3.0)
 
-> **Companion app required.** This add-on does nothing on its own — install the [Guru](https://apps.apple.com/app/id6757980593) iOS app to use it.
+> **Companion app required.** This add-on does nothing on its own — install the [Guru](https://apps.apple.com/app/id6757980593) iOS app ([learn more](https://guruowl.com/app/)) to use it.
 
 ## Install
 
